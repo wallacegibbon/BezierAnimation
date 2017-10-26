@@ -1,24 +1,30 @@
 
 class BezierElement {
   /**
-   * This class can make any HTML element to move in a certain bezier route.
-   * The target element has to be "position: fixed".
-   *
-   * e.g.
-   * const r1 = [{x:30, y:400}, {x:50, y:300}, {x:-50, y:150}, {x:30, y:0}];
-   * const ele = document.querySelector("#e");
-   * const a = new BezierElement(ele, r1);
-   *
-   * a.start();
+   * This class make a HTML element to move in a certain bezier route. Target
+   * `element` has to be set as "position: fixed".
    */
   constructor(element, route) {
-    this.speed = 0.008;
-    this.t = 0;
+    this.updatePosition = this.updatePosition.bind(this);
+
+    const [ startPoint, p1, p2, endPoint ] = route;
+
+    this.cx = 3 * (p1.x - startPoint.x);
+    this.bx = 3 * (p2.x - p1.x) - this.cx;
+    this.ax = endPoint.x - startPoint.x - this.cx - this.bx;
+
+    this.cy = 3 * (p1.y - startPoint.y);
+    this.by = 3 * (p2.y - p1.y) - this.cy;
+    this.ay = endPoint.y - startPoint.y - this.cy - this.by;
+
+    this.startx = startPoint.x;
+    this.starty = startPoint.y;
 
     this.element = element;
-    this.route = route;
-
     this.requestId = null;
+
+    this.speed = 0.01;
+    this.t = 0;
   }
 
 
@@ -26,50 +32,38 @@ class BezierElement {
    * This function calculate the bezier route. And trigger the next drawing
    * operation through requestAnimationFrame.
    */
-  draw() {
-    const p0 = this.route[0];
-    const p1 = this.route[1];
-    const p2 = this.route[2];
-    const p3 = this.route[3];
+  updatePosition() {
+    const { ax, bx, cx, ay, by, cy, startx, starty, t } = this;
+    const tSquared = t * t;
+    const tCubed = t ** 3;
 
-    const cx = 3 * (p1.x - p0.x);
-    const bx = 3 * (p2.x - p1.x) - cx;
-    const ax = p3.x - p0.x - cx - bx;
+    const x = ax * tCubed + bx * tSquared + cx * t + startx;
+    const y = ay * tCubed + by * tSquared + cy * t + starty;
 
-    const cy = 3 * (p1.y - p0.y);
-    const by = 3 * (p2.y - p1.y) - cy;
-    const ay = p3.y - p0.y - cy - by;
-
-    const tSquared = this.t * this.t;
-    const tCubed = this.t ** 3;
-
-    const xt = ax * tCubed + bx * tSquared + cx * this.t + p0.x;
-    const yt = ay * tCubed + by * tSquared + cy * this.t + p0.y;
-
-    this.element.style.left = this.numToPosition(xt);
-    this.element.style.top = this.numToPosition(yt);
+    this.element.style.left = this.num2pix(x);
+    this.element.style.top = this.num2pix(y);
 
     this.t += this.speed;
 
     if (this.t <= 1)
-      this.requestId = requestAnimationFrame(() => this.draw());
+      this.requestId = requestAnimationFrame(this.updatePosition);
     else
       this.stop();
   }
 
 
   /**
-   * The postion you pass to `element.style.left` or `element.style.top` have
-   * to be string like "1px", Number objects will not work.
+   * The postion you pass to `e.style.left` or `e.style.top` have to be
+   * string like "1px", Number objects will not work.
    */
-  numToPosition(num) {
+  num2pix(num) {
     return Math.floor(num) + "px";
   }
 
 
   /**
-   * Use cancelAnimationFrame to stop the draw process, and reset `this.t`
-   * so that you can call `this.start` again.
+   * Stop the drawing process and reset `this.t`, so that the animation can
+   * start again.
    */
   stop() {
     cancelAnimationFrame(this.requestId);
@@ -81,7 +75,7 @@ class BezierElement {
    * This is the only method that users need to call.
    */
   start() {
-    requestAnimationFrame(() => this.draw());
+    requestAnimationFrame(this.updatePosition);
   }
 }
 

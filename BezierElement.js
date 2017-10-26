@@ -1,7 +1,7 @@
 
 class BezierElement {
   /**
-   * This class can make any html element to move in a certain bezier route.
+   * This class can make any HTML element to move in a certain bezier route.
    * The target element has to be "position: fixed".
    *
    * e.g.
@@ -10,7 +10,6 @@ class BezierElement {
    * const a = new BezierElement(ele, r1);
    *
    * a.start();
-   *
    */
   constructor(element, route) {
     this.speed = 0.008;
@@ -19,12 +18,13 @@ class BezierElement {
     this.element = element;
     this.route = route;
 
-    this.timer = null;
+    this.requestId = null;
   }
 
+
   /**
-   * This function calculate the bezier routes throught time. And trigger the
-   * next draw operation through requestAnimationFrame.
+   * This function calculate the bezier route. And trigger the next drawing
+   * operation through requestAnimationFrame.
    */
   draw() {
     const p0 = this.route[0];
@@ -40,10 +40,11 @@ class BezierElement {
     const by = 3 * (p2.y - p1.y) - cy;
     const ay = p3.y - p0.y - cy - by;
 
-    const t = this.t;
+    const tSquared = this.t * this.t;
+    const tCubed = this.t ** 3;
 
-    const xt = ax * (t * t * t) + bx * (t * t) + cx * t + p0.x;
-    const yt = ay * (t * t * t) + by * (t * t) + cy * t + p0.y;
+    const xt = ax * tCubed + bx * tSquared + cx * this.t + p0.x;
+    const yt = ay * tCubed + by * tSquared + cy * this.t + p0.y;
 
     this.element.style.left = this.numToPosition(xt);
     this.element.style.top = this.numToPosition(yt);
@@ -51,23 +52,34 @@ class BezierElement {
     this.t += this.speed;
 
     if (this.t <= 1)
-      this.timer = requestAnimationFrame(() => this.draw());
+      this.requestId = requestAnimationFrame(() => this.draw());
     else
       this.stop();
   }
 
+
   /**
-   * The postion you pass to `element.style` have to be string like "1px".
+   * The postion you pass to `element.style.left` or `element.style.top` have
+   * to be string like "1px", Number objects will not work.
    */
   numToPosition(num) {
     return Math.floor(num) + "px";
   }
 
+
+  /**
+   * Use cancelAnimationFrame to stop the draw process, and reset `this.t`
+   * so that you can call `this.start` again.
+   */
   stop() {
-    cancelAnimationFrame(this.timer);
+    cancelAnimationFrame(this.requestId);
     this.t = 0;
   }
 
+
+  /**
+   * This is the only method that users need to call.
+   */
   start() {
     requestAnimationFrame(() => this.draw());
   }

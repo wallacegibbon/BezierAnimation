@@ -1,5 +1,5 @@
 
-class BezierElement {
+class BezierAnimation {
   /**
    * This class make a HTML element to move in a certain bezier route. Target
    * `element` has to be set as "position: fixed".

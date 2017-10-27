@@ -15,15 +15,15 @@
   <div id="e" class="ani"><button>Submit</button></div>
   <div id="f" class="ani"><input type="text" value="BEZIER" /></div>
 
-  <script src="./BezierElement.js"></script>
+  <script src="./BezierAnimation.js"></script>
   <script>
 
 const r1 = [{x:30, y:400}, {x:500, y:300}, {x:-50, y:150}, {x:30, y:60}];
-const a = new BezierElement(document.querySelector("#e"), r1);
+const a = new BezierAnimation(document.querySelector("#e"), r1);
 a.start();
 
 const r2 = [{x:30, y:800}, {x:1370, y:300}, {x:-50, y:150}, {x:30, y:20}];
-const b = new BezierElement(document.querySelector("#f"), r2);
+const b = new BezierAnimation(document.querySelector("#f"), r2);
 b.start();
 
   </script>

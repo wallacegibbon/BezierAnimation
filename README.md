@@ -11,8 +11,8 @@ const r1 = [{x:30, y:400}, {x:50, y:300}, {x:-50, y:150}, {x:30, y:0}];
 //Get a HTML element
 const ele = document.querySelector("#e");
 
-//Use BezierElement on this element
-const a = new BezierElement(ele, r1);
+//Create the animation object
+const a = new BezierAnimation(ele, r1);
 
 //Start the animation
 a.start();

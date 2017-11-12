@@ -2,7 +2,7 @@
 class BezierAnimation {
   /**
    * This class make a HTML element to move in a certain bezier route. Target
-   * `element` has to be set as "position: fixed".
+   * `element` will be set as "position: fixed".
    */
   constructor(element, route) {
     this.updatePosition = this.updatePosition.bind(this);
@@ -20,6 +20,7 @@ class BezierAnimation {
     this.startx = startPoint.x;
     this.starty = startPoint.y;
 
+    element.style.position = "fixed";
     this.element = element;
     this.requestId = null;
 
@@ -75,7 +76,7 @@ class BezierAnimation {
    * This is the only method that users need to call.
    */
   start() {
-    requestAnimationFrame(this.updatePosition);
+    this.requestId = requestAnimationFrame(this.updatePosition);
   }
 }
 
